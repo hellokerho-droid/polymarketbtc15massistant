@@ -820,4 +820,29 @@ if (
   }
 }
 
+sendTelegramMessage(
+  [
+    "🤖 Polymarket Arbitrage Bot 已启动",
+    "",
+    "模式: Paper Trading",
+    "模拟本金: $100",
+    "单笔上限: $5",
+    "真实交易: OFF",
+    "",
+    "正在扫描 BTC 15m 套利机会..."
+  ].join("\n")
+)
+  .then((result) => {
+    if (!result.ok) {
+      console.log(`[Telegram startup] ${result.reason}`);
+    } else {
+      console.log("[Telegram startup] message sent");
+    }
+  })
+  .catch((err) => {
+    console.log(
+      `[Telegram startup] ${err?.message ?? String(err)}`
+    );
+  });
+
 main();
