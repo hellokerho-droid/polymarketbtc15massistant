@@ -62,17 +62,8 @@ export function scanArbitrage({
 
   // If summarizeOrderBook exposes ask-side liquidity, limit
   // the paper fill to the available size.
-  const upAskSize = Number(
-    upBook?.bestAskSize ??
-    upBook?.askSize ??
-    Infinity
-  );
-
-  const downAskSize = Number(
-    downBook?.bestAskSize ??
-    downBook?.askSize ??
-    Infinity
-  );
+  const upAskSize = Number(upBook?.askLiquidity ?? Infinity);
+const downAskSize = Number(downBook?.askLiquidity ?? Infinity);
 
   const executableQty = Math.min(
     pairQty,
