@@ -520,7 +520,87 @@ async function main() {
 
       const marketUp = poly.ok ? poly.prices.up : null;
       const marketDown = poly.ok ? poly.prices.down : null;
-      const edge = computeEdge({ modelUp: timeAware.adjustedUp, modelDown: timeAware.adjustedDown, marketYes: marketUp, marketNo: marketDown });
+     // ================================
+// PAPER ARBITRAGE SCANNER
+// Simulation only - no real orders
+// ================================
+
+if (
+  poly.ok &&
+  poly.orderbook?.up &&
+  poly.orderbook?.down
+) {
+  const arb = scanArbitrage({
+    upBook: poly.orderbook.up,
+    downBook: poly.orderbook.down,
+
+    bankroll: paperTrader.balance,
+
+    maxTradeUsd: 5,
+    minProfitPct: 1.0,
+    safetyBufferPct: 0.3,
+  });
+
+  if (arb.opportunity) {
+    const marketKey = String(
+      poly.market?.slug ??
+      poly.market?.id ??
+      "btc-15m"
+    );
+
+    const marketName = String(
+      poly.market?.question ??
+      marketKey
+    );
+
+    const tradeResult = paperTrader.recordArbitrage({
+      key: marketKey,
+      market: marketName,
+
+      upAsk: arb.upAsk,
+      downAsk: arb.downAsk,
+
+      quantity: arb.quantity,
+      costUsd: arb.costUsd,
+      settlementValue: arb.settlementValue,
+
+      estimatedProfitUsd: arb.estimatedProfitUsd,
+      estimatedProfitPct: arb.estimatedProfitPct,
+    });
+
+    // Only send once for each simulated trade.
+    if (tradeResult.ok) {
+      console.log(
+        `[PAPER ARB] ${marketKey} | ` +
+        `UP ${arb.upAsk} + DOWN ${arb.downAsk} = ` +
+        `${arb.combinedPrice.toFixed(4)} | ` +
+        `PnL $${tradeResult.trade.realizedProfitUsd.toFixed(4)}`
+      );
+
+      const telegramMessage = formatArbitrageMessage({
+        market: marketName,
+        opportunity: arb,
+        tradeResult,
+      });
+
+      sendTelegramMessage(telegramMessage)
+        .then((result) => {
+          if (!result.ok) {
+            console.log(
+              `[Telegram] ${result.reason}`
+            );
+          }
+        })
+        .catch((err) => {
+          console.log(
+            `[Telegram] ${err?.message ?? String(err)}`
+          );
+        });
+    }
+  }
+}
+
+       const edge = computeEdge({ modelUp: timeAware.adjustedUp, modelDown: timeAware.adjustedDown, marketYes: marketUp, marketNo: marketDown });
 
       const rec = decide({ remainingMinutes: timeLeftMin, edgeUp: edge.edgeUp, edgeDown: edge.edgeDown, modelUp: timeAware.adjustedUp, modelDown: timeAware.adjustedDown });
 
