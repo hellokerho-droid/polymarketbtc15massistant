@@ -25,7 +25,17 @@ import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
 import { applyGlobalProxyFromEnv } from "./net/proxy.js";
+import { scanArbitrage } from "./engines/arbitrage.js";
+import { PaperTrader } from "./engines/paperTrader.js";
+import {
+  sendTelegramMessage,
+  formatArbitrageMessage,
+} from "./net/telegram.js";
 
+const paperTrader = new PaperTrader({
+  startingBalance: 100,
+  maxTradeUsd: 5,
+});
 function countVwapCrosses(closes, vwapSeries, lookback) {
   if (closes.length < lookback || vwapSeries.length < lookback) return null;
   let crosses = 0;
