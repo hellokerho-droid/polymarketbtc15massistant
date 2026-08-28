@@ -27,14 +27,16 @@ import readline from "node:readline";
 import { applyGlobalProxyFromEnv } from "./net/proxy.js";
 import { scanArbitrage } from "./engines/arbitrage.js";
 import { PaperTrader } from "./engines/paperTrader.js";
+import { PAPER_SAFETY } from "./config/paperSafety.js";
 import {
   sendTelegramMessage,
   formatArbitrageMessage,
 } from "./net/telegram.js";
 
 const paperTrader = new PaperTrader({
-  startingBalance: 100,
-  maxTradeUsd: 5,
+  startingBalance: PAPER_SAFETY.startingBalance,
+  maxTradeUsd: PAPER_SAFETY.maxTradeUsd,
+  cashReserveUsd: PAPER_SAFETY.cashReserveUsd,
 });
 function countVwapCrosses(closes, vwapSeries, lookback) {
   if (closes.length < lookback || vwapSeries.length < lookback) return null;
@@ -536,9 +538,11 @@ if (
 
     bankroll: paperTrader.balance,
 
-    maxTradeUsd: 5,
-    minProfitPct: 1.0,
-    safetyBufferPct: 0.3,
+    maxTradeUsd: PAPER_SAFETY.maxTradeUsd,
+    cashReserveUsd: PAPER_SAFETY.cashReserveUsd,
+    minGrossProfitPct: PAPER_SAFETY.minGrossProfitPct,
+    executionBufferPct: PAPER_SAFETY.executionBufferPct,
+    minNetProfitPct: PAPER_SAFETY.minNetProfitPct,
   });
 
   if (arb.opportunity) {

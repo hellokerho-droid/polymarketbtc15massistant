@@ -109,6 +109,18 @@ WSS RPC (optional but recommended for more real-time fallback):
 
 ### Proxy support
 
+### 10U Safety Paper Trading
+
+The arbitrage scanner is simulation-only and defaults to a 10 USDC balance,
+2 USDC maximum trade, 4 USDC cash reserve, 2.5% minimum gross edge, 1.3%
+execution buffer, and 1.2% minimum net edge. Railway may set
+`PAPER_STARTING_BALANCE`, `PAPER_MAX_TRADE_USD`, `PAPER_CASH_RESERVE_USD`,
+`PAPER_MIN_GROSS_PROFIT_PCT`, `PAPER_EXECUTION_BUFFER_PCT`, and
+`PAPER_MIN_NET_PROFIT_PCT`. Values that would weaken the safety limits are
+clamped to the safe limits.
+
+No private keys, signing, wallet transfers, or real order APIs are used.
+
 The bot supports HTTP(S) proxies for both HTTP requests (fetch) and WebSocket connections.
 
 Supported env vars (standard):

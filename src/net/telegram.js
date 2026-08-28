@@ -57,15 +57,18 @@ export function formatArbitrageMessage({
 
   return [
     "🟢 Polymarket 模拟套利",
+    "当前模式: 10U Safety Paper Trading",
     "",
     `市场: ${market}`,
     `UP Ask: ${opportunity.upAsk.toFixed(4)}`,
     `DOWN Ask: ${opportunity.downAsk.toFixed(4)}`,
-    `合计: ${opportunity.combinedPrice.toFixed(4)}`,
+    `Combined price: ${opportunity.combinedPrice.toFixed(4)}`,
     "",
     `模拟投入: $${opportunity.costUsd.toFixed(2)}`,
-    `预计收益: $${opportunity.estimatedProfitUsd.toFixed(4)}`,
-    `预计收益率: ${opportunity.estimatedProfitPct.toFixed(2)}%`,
+    `毛收益率: ${opportunity.grossProfitPct.toFixed(2)}%`,
+    `Execution buffer: ${opportunity.executionBufferPct.toFixed(2)}%`,
+    `预计净收益率: ${opportunity.estimatedProfitPct.toFixed(2)}%`,
+    `预计净利润: $${opportunity.estimatedProfitUsd.toFixed(4)}`,
     "",
     trade
       ? `模拟实际利润: $${trade.realizedProfitUsd.toFixed(4)}`
