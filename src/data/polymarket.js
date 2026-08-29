@@ -129,7 +129,7 @@ function marketHasSeriesSlug(market, seriesSlug) {
   return false;
 }
 
-export function filterBtcUpDown15mMarkets(markets, { seriesSlug, slugPrefix } = {}) {
+export function filterBtcUpDownMarkets(markets, { seriesSlug, slugPrefix } = {}) {
   const prefix = (slugPrefix ?? "").toLowerCase();
   const wantedSeries = (seriesSlug ?? "").toLowerCase();
 
