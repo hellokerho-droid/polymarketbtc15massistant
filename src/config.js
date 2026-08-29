@@ -5,7 +5,7 @@ export const CONFIG = {
   clobBaseUrl: "https://clob.polymarket.com",
 
   pollIntervalMs: 1_000,
-  candleWindowMinutes: 15,
+  candleWindowMinutes: 5,
 
   vwapSlopeLookbackMinutes: 5,
   rsiPeriod: 14,
@@ -17,8 +17,9 @@ export const CONFIG = {
 
   polymarket: {
     marketSlug: process.env.POLYMARKET_SLUG || "",
-    seriesId: process.env.POLYMARKET_SERIES_ID || "10192",
-    seriesSlug: process.env.POLYMARKET_SERIES_SLUG || "btc-up-or-down-15m",
+    seriesId: process.env.POLYMARKET_SERIES_ID || "10684",
+    seriesSlug: process.env.POLYMARKET_SERIES_SLUG || "btc-up-or-down-5m",
+    slugPrefix: process.env.POLYMARKET_SLUG_PREFIX || "btc-updown-5m-",
     autoSelectLatest: (process.env.POLYMARKET_AUTO_SELECT_LATEST || "true").toLowerCase() === "true",
     liveDataWsUrl: process.env.POLYMARKET_LIVE_WS_URL || "wss://ws-live-data.polymarket.com",
     upOutcomeLabel: process.env.POLYMARKET_UP_LABEL || "Up",
