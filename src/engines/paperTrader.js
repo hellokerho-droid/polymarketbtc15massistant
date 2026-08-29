@@ -1,14 +1,19 @@
 // src/engines/paperTrader.js
 // Simulation-only paper trader. Never places real orders.
 
+import { PAPER_SAFETY } from "../config/paperSafety.js";
+
 export class PaperTrader {
   constructor({
-    startingBalance = 100,
-    maxTradeUsd = 5,
+    startingBalance = PAPER_SAFETY.startingBalance,
+    maxTradeUsd = PAPER_SAFETY.maxTradeUsd,
+    cashReserveUsd = PAPER_SAFETY.cashReserveUsd,
   } = {}) {
-    this.startingBalance = startingBalance;
-    this.balance = startingBalance;
-    this.maxTradeUsd = maxTradeUsd;
+    this.startingBalance = Number.isFinite(Number(startingBalance)) && Number(startingBalance) > 0
+      ? Number(startingBalance) : 10;
+    this.balance = this.startingBalance;
+    this.maxTradeUsd = Math.min(Number(maxTradeUsd) || 2, 2);
+    this.cashReserveUsd = Math.max(Number(cashReserveUsd) || 4, 4);
 
     this.totalTrades = 0;
     this.totalProfit = 0;
@@ -21,7 +26,7 @@ export class PaperTrader {
     return (
       Number.isFinite(costUsd) &&
       costUsd > 0 &&
-      costUsd <= this.balance &&
+      costUsd <= this.balance - this.cashReserveUsd &&
       costUsd <= this.maxTradeUsd
     );
   }
@@ -55,6 +60,13 @@ export class PaperTrader {
       };
     }
 
+    if (!Number.isFinite(estimatedProfitUsd) || estimatedProfitUsd <= 0) {
+      return {
+        ok: false,
+        reason: "invalid_estimated_profit",
+      };
+    }
+
     if (!this.canTrade(costUsd)) {
       return {
         ok: false,
@@ -66,9 +78,11 @@ export class PaperTrader {
 
     // Paper simulation assumes both legs fill and later settle.
     this.balance -= costUsd;
-    this.balance += settlementValue;
+    // Record the conservative net estimate, not an unrealistically buffer-free
+    // settlement. This remains an in-memory simulation only.
+    this.balance += costUsd + estimatedProfitUsd;
 
-    const realizedProfit = settlementValue - costUsd;
+    const realizedProfit = estimatedProfitUsd;
 
     this.totalTrades += 1;
     this.totalProfit += realizedProfit;

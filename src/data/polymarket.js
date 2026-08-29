@@ -190,12 +190,18 @@ export function summarizeOrderBook(book, depthLevels = 5) {
 
   const bidLiquidity = bids.slice(0, depthLevels).reduce((acc, x) => acc + (toNumber(x.size) ?? 0), 0);
   const askLiquidity = asks.slice(0, depthLevels).reduce((acc, x) => acc + (toNumber(x.size) ?? 0), 0);
+  const bestAskLiquidity = bestAsk === null ? 0 : asks.reduce((acc, x) => {
+    const price = toNumber(x.price);
+    const size = toNumber(x.size);
+    return price === bestAsk && size !== null && size > 0 ? acc + size : acc;
+  }, 0);
 
   return {
     bestBid,
     bestAsk,
     spread,
     bidLiquidity,
-    askLiquidity
+    askLiquidity,
+    bestAskLiquidity
   };
 }
