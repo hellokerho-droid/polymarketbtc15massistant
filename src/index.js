@@ -10,7 +10,8 @@ import {
   pickLatestLiveMarket,
   fetchClobPrice,
   fetchOrderBook,
-  summarizeOrderBook
+  summarizeOrderBook,
+  filterBtcUpDownMarkets
 } from "./data/polymarket.js";
 import { computeSessionVwap, computeVwapSeries } from "./indicators/vwap.js";
 import { computeRsi, sma, slopeLast } from "./indicators/rsi.js";
@@ -55,6 +56,16 @@ function fmtTimeLeft(mins) {
   const m = Math.floor(totalSeconds / 60);
   const s = totalSeconds % 60;
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function timeLeftColor(mins) {
+  const total = CONFIG.candleWindowMinutes;
+  if (!Number.isFinite(mins) || mins < 0 || !Number.isFinite(total) || total <= 0) {
+    return ANSI.reset;
+  }
+  if (mins >= total * (2 / 3)) return ANSI.green;
+  if (mins >= total * (1 / 3)) return ANSI.yellow;
+  return ANSI.red;
 }
 
 const ANSI = {
@@ -291,7 +302,7 @@ const marketCache = {
   fetchedAtMs: 0
 };
 
-async function resolveCurrentBtc15mMarket() {
+async function resolveCurrentBtc5mMarket() {
   if (CONFIG.polymarket.marketSlug) {
     return await fetchMarketBySlug(CONFIG.polymarket.marketSlug);
   }
@@ -305,7 +316,11 @@ async function resolveCurrentBtc15mMarket() {
 
   const events = await fetchLiveEventsBySeriesId({ seriesId: CONFIG.polymarket.seriesId, limit: 25 });
   const markets = flattenEventMarkets(events);
-  const picked = pickLatestLiveMarket(markets);
+  const eligibleMarkets = filterBtcUpDownMarkets(markets, {
+    seriesSlug: CONFIG.polymarket.seriesSlug,
+    slugPrefix: CONFIG.polymarket.slugPrefix
+  });
+  const picked = pickLatestLiveMarket(eligibleMarkets);
 
   marketCache.market = picked;
   marketCache.fetchedAtMs = now;
@@ -313,7 +328,7 @@ async function resolveCurrentBtc15mMarket() {
 }
 
 async function fetchPolymarketSnapshot() {
-  const market = await resolveCurrentBtc15mMarket();
+  const market = await resolveCurrentBtc5mMarket();
 
   if (!market) return { ok: false, reason: "market_not_found" };
 
@@ -545,7 +560,7 @@ if (
     const marketKey = String(
       poly.market?.slug ??
       poly.market?.id ??
-      "btc-15m"
+      "btc-5m"
     );
 
     const marketName = String(
@@ -738,23 +753,11 @@ if (
       const titleLine = poly.ok ? `${poly.market?.question ?? "-"}` : "-";
       const marketLine = kv("Market:", poly.ok ? (poly.market?.slug ?? "-") : "-");
 
-      const timeColor = timeLeftMin >= 10 && timeLeftMin <= 15
-        ? ANSI.green
-        : timeLeftMin >= 5 && timeLeftMin < 10
-          ? ANSI.yellow
-          : timeLeftMin >= 0 && timeLeftMin < 5
-            ? ANSI.red
-            : ANSI.reset;
+      const timeColor = timeLeftColor(timeLeftMin);
       const timeLeftLine = `⏱ Time left: ${timeColor}${fmtTimeLeft(timeLeftMin)}${ANSI.reset}`;
 
       const polyTimeLeftColor = settlementLeftMin !== null
-        ? (settlementLeftMin >= 10 && settlementLeftMin <= 15
-          ? ANSI.green
-          : settlementLeftMin >= 5 && settlementLeftMin < 10
-            ? ANSI.yellow
-            : settlementLeftMin >= 0 && settlementLeftMin < 5
-              ? ANSI.red
-              : ANSI.reset)
+        ? timeLeftColor(settlementLeftMin)
         : ANSI.reset;
 
       const lines = [
@@ -829,7 +832,7 @@ sendTelegramMessage(
     "单笔上限: $5",
     "真实交易: OFF",
     "",
-    "正在扫描 BTC 15m 套利机会..."
+    "正在扫描 BTC 5m 套利机会..."
   ].join("\n")
 )
   .then((result) => {
