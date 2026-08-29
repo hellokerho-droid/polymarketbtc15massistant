@@ -1,6 +1,6 @@
-# Polymarket BTC 15m Assistant
+# Polymarket BTC 5m Arbitrage Scanner
 
-A real-time console trading assistant for Polymarket **"Bitcoin Up or Down" 15-minute** markets.
+A real-time paper-arbitrage scanner for Polymarket **"Bitcoin Up or Down" 5-minute** markets.
 
 It combines:
 - Polymarket market selection + UP/DOWN prices + liquidity
@@ -21,7 +21,7 @@ It combines:
 ### 1) Clone the repository
 
 ```bash
-git clone https://github.com/FrondEnt/PolymarketBTC15mAssistant.git
+git clone https://github.com/hellokerho-droid/PolymarketBTC15mAssistant.git
 ```
 
 Alternative (no git):
@@ -55,7 +55,7 @@ Optional Polymarket settings:
 
 ```powershell
 $env:POLYMARKET_AUTO_SELECT_LATEST = "true"
-# $env:POLYMARKET_SLUG = "btc-updown-15m-..."   # pin a specific market
+# $env:POLYMARKET_SLUG = "btc-updown-5m-..."   # pin a specific market
 ```
 
 #### Windows CMD (current terminal session)
@@ -70,7 +70,7 @@ Optional Polymarket settings:
 
 ```cmd
 set POLYMARKET_AUTO_SELECT_LATEST=true
-REM set POLYMARKET_SLUG=btc-updown-15m-...
+REM set POLYMARKET_SLUG=btc-updown-5m-...
 ```
 
 Notes:
@@ -86,9 +86,11 @@ You can set them in your shell, or create a `.env` file and load it using your p
 ### Polymarket
 
 - `POLYMARKET_AUTO_SELECT_LATEST` (default: `true`)
-  - When `true`, automatically picks the latest 15m market.
-- `POLYMARKET_SERIES_ID` (default: `10192`)
-- `POLYMARKET_SERIES_SLUG` (default: `btc-up-or-down-15m`)
+  - When `true`, automatically picks the latest 5m market.
+- `POLYMARKET_SERIES_ID` (default: `10684`)
+- `POLYMARKET_SERIES_SLUG` (default: `btc-up-or-down-5m`)
+- `POLYMARKET_SLUG_PREFIX` (default: `btc-updown-5m-`)
+  - Prevents selecting a non-5m BTC market.
 - `POLYMARKET_SLUG` (optional)
   - If set, the assistant will target a specific market slug.
 - `POLYMARKET_LIVE_WS_URL` (default: `wss://ws-live-data.polymarket.com`)
