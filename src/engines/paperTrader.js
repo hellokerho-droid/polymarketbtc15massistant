@@ -32,7 +32,7 @@ export class PaperTrader {
 
   recordArbitrage({
     key,
-    market = "BTC 15m",
+    market = "BTC 5m",
     upAsk,
     downAsk,
     quantity,
