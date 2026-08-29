@@ -48,7 +48,7 @@ export async function sendTelegramMessage(message) {
 }
 
 export function formatArbitrageMessage({
-  market = "BTC 15m",
+  market = "BTC 5m",
   opportunity,
   tradeResult,
 }) {
